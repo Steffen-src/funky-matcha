@@ -1,6 +1,121 @@
-(function(){'use strict';const root=document.documentElement,overlay=document.getElementById('splash-intro'),surface=document.getElementById('page-surface'),button=document.getElementById('skip-intro'),hole=document.getElementById('paint-hole'),dropsRoot=document.getElementById('paint-drops');let frame=0,finished=false;const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-function finish(){if(finished)return;finished=true;cancelAnimationFrame(frame);root.classList.remove('intro-armed','intro-revealing');surface.inert=false;overlay.dataset.phase='done';overlay.hidden=true;if(overlay.contains(document.activeElement)){const brand=document.querySelector('.brand');if(brand)brand.focus({preventScroll:true});}}
-window.FunkyIntro={finish};if(!root.classList.contains('intro-armed')||reduced.matches){finish();return;}surface.inert=true;overlay.dataset.phase='blur';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');button.addEventListener('click',finish);addEventListener('keydown',e=>{if(e.key==='Escape')finish();});reduced.addEventListener('change',e=>{if(e.matches)finish();});const namespace='http://www.w3.org/2000/svg',palette=['#e94caa','#d9ff69','#bc8af5','#ffb963','#7820c8'];let seed=6187;function random(){seed=(seed*16807)%2147483647;return(seed-1)/2147483646;}const drops=[];
-for(let n=0;n<44;n++){const element=document.createElementNS(namespace,'ellipse'),angle=n/44*Math.PI*2+(random()-.5)*.15,radius=7+random()*26;const drop={element,angle,distance:370+random()*440,radius,delay:random()*.09,stretch:1.6+random()*2};element.setAttribute('fill',palette[n%palette.length]);element.setAttribute('cx','500');element.setAttribute('cy','510');element.setAttribute('rx','0');element.setAttribute('ry','0');dropsRoot.append(element);drops.push(drop);}
-const start=performance.now();function tick(now){if(finished)return;const seconds=(now-start)/1000;if(seconds<.66){overlay.dataset.phase='blur';}else{if(!root.classList.contains('intro-revealing')){root.classList.add('intro-revealing');overlay.dataset.phase='splash';}const progress=Math.min(1,(seconds-.66)/1.1),ease=1-Math.pow(1-progress,2.9);hole.setAttribute('r',String(ease*1030));for(const drop of drops){const p=Math.max(0,Math.min(1,(seconds-.66-drop.delay)/1.08)),travel=Math.pow(p,.66)*drop.distance,size=drop.radius*Math.sin(Math.PI*Math.min(1,p*1.3));drop.element.setAttribute('cx',String(500+Math.cos(drop.angle)*travel));drop.element.setAttribute('cy',String(510+Math.sin(drop.angle)*travel));drop.element.setAttribute('rx',String(Math.max(0,size*drop.stretch)));drop.element.setAttribute('ry',String(Math.max(0,size)));drop.element.setAttribute('transform',`rotate(${drop.angle*180/Math.PI} ${500+Math.cos(drop.angle)*travel} ${510+Math.sin(drop.angle)*travel})`);drop.element.setAttribute('opacity',String(Math.min(1,(1-p)*2.5)));}}if(seconds>=1.9){finish();return;}frame=requestAnimationFrame(tick);}frame=requestAnimationFrame(tick);setTimeout(finish,2500);
+(function () {
+  'use strict';
+  const root = document.documentElement,
+    overlay = document.getElementById('splash-intro'),
+    surface = document.getElementById('page-surface'),
+    button = document.getElementById('skip-intro'),
+    hole = document.getElementById('paint-hole'),
+    dropsRoot = document.getElementById('paint-drops');
+  let frame = 0,
+    finished = false;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  function finish() {
+    if (finished) return;
+    finished = true;
+    cancelAnimationFrame(frame);
+    root.classList.remove('intro-armed', 'intro-revealing');
+    surface.inert = false;
+    overlay.dataset.phase = 'done';
+    overlay.hidden = true;
+    if (overlay.contains(document.activeElement)) {
+      const brand = document.querySelector('.brand');
+      if (brand) brand.focus({ preventScroll: true });
+    }
+  }
+  window.FunkyIntro = { finish };
+  if (!root.classList.contains('intro-armed') || reduced.matches) {
+    finish();
+    return;
+  }
+  surface.inert = true;
+  overlay.dataset.phase = 'blur';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  button.addEventListener('click', finish);
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') finish();
+  });
+  reduced.addEventListener('change', (e) => {
+    if (e.matches) finish();
+  });
+  const namespace = 'http://www.w3.org/2000/svg',
+    palette = ['#e94caa', '#d9ff69', '#bc8af5', '#ffb963', '#7820c8'];
+  let seed = 6187;
+  function random() {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  }
+  const drops = [];
+  for (let n = 0; n < 44; n++) {
+    const element = document.createElementNS(namespace, 'ellipse'),
+      angle = (n / 44) * Math.PI * 2 + (random() - 0.5) * 0.15,
+      radius = 7 + random() * 26;
+    const drop = {
+      element,
+      angle,
+      distance: 370 + random() * 440,
+      radius,
+      delay: random() * 0.09,
+      stretch: 1.6 + random() * 2,
+    };
+    element.setAttribute('fill', palette[n % palette.length]);
+    element.setAttribute('cx', '500');
+    element.setAttribute('cy', '510');
+    element.setAttribute('rx', '0');
+    element.setAttribute('ry', '0');
+    dropsRoot.append(element);
+    drops.push(drop);
+  }
+  const start = performance.now();
+  function tick(now) {
+    if (finished) return;
+    const seconds = (now - start) / 1000;
+    if (seconds < 0.66) {
+      overlay.dataset.phase = 'blur';
+    } else {
+      if (!root.classList.contains('intro-revealing')) {
+        root.classList.add('intro-revealing');
+        overlay.dataset.phase = 'splash';
+      }
+      const progress = Math.min(1, (seconds - 0.66) / 1.1),
+        ease = 1 - Math.pow(1 - progress, 2.9);
+      hole.setAttribute('r', String(ease * 1030));
+      for (const drop of drops) {
+        const p = Math.max(
+            0,
+            Math.min(1, (seconds - 0.66 - drop.delay) / 1.08),
+          ),
+          travel = Math.pow(p, 0.66) * drop.distance,
+          size = drop.radius * Math.sin(Math.PI * Math.min(1, p * 1.3));
+        drop.element.setAttribute(
+          'cx',
+          String(500 + Math.cos(drop.angle) * travel),
+        );
+        drop.element.setAttribute(
+          'cy',
+          String(510 + Math.sin(drop.angle) * travel),
+        );
+        drop.element.setAttribute(
+          'rx',
+          String(Math.max(0, size * drop.stretch)),
+        );
+        drop.element.setAttribute('ry', String(Math.max(0, size)));
+        drop.element.setAttribute(
+          'transform',
+          `rotate(${(drop.angle * 180) / Math.PI} ${500 + Math.cos(drop.angle) * travel} ${510 + Math.sin(drop.angle) * travel})`,
+        );
+        drop.element.setAttribute(
+          'opacity',
+          String(Math.min(1, (1 - p) * 2.5)),
+        );
+      }
+    }
+    if (seconds >= 1.9) {
+      finish();
+      return;
+    }
+    frame = requestAnimationFrame(tick);
+  }
+  frame = requestAnimationFrame(tick);
+  setTimeout(finish, 2500);
 })();
